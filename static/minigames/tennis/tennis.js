@@ -9,11 +9,11 @@ const ctx = canvas.getContext('2d');
 // ==========================================
 // 2. 載入遊戲所需圖片資源 (非同步載入)
 // ==========================================
-const bgImage = new Image(); bgImage.src = 'tennisCourt.png';     // 網球場背景圖
-const playerImage = new Image(); playerImage.src = 'player.png'; // 玩家角色圖
-const computerImage = new Image(); computerImage.src = 'computer.png'; // 電腦對手圖
-const winImage = new Image(); winImage.src = 'win.png';     // 玩家獲勝時的全螢幕覆蓋圖
-const loseImage = new Image(); loseImage.src = 'lose.png';   // 玩家失敗時的全螢幕覆蓋圖
+const bgImage = new Image(); bgImage.src = '/static/minigames/tennis/tennisCourt.png';
+const playerImage = new Image(); playerImage.src = '/static/minigames/tennis/player.png';
+const computerImage = new Image(); computerImage.src = '/static/minigames/tennis/computer.png';
+const winImage = new Image(); winImage.src = '/static/minigames/tennis/win.png';
+const loseImage = new Image(); loseImage.src = '/static/minigames/tennis/lose.png';
 
 // ==========================================
 // 3. 遊戲物件與物理參數設定
