@@ -534,7 +534,7 @@ function triggerEndGame() {
 
     // 將數據發送到 Flask 後端 (補齊完整路徑防止路由迷路)
     // 後端會回傳結算結果，然後儲存於 sessionStorage 再跳轉到 /result
-    fetch('http://127.0.0.1:5000/api/game_over', {
+    fetch('/api/game_over', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
