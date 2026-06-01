@@ -136,6 +136,10 @@ window.enterCharacterSelect = function() {
     const select = document.getElementById('charSelectUI');
     if (start) start.style.display = 'none';
     if (select) select.style.display = 'flex';
+
+    // 使用者點擊後才播放音樂
+    const bgm = document.getElementById('bgm');
+    if (bgm) bgm.play();
 };
 
 // 打開遊戲說明視窗
