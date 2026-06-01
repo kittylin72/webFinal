@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>學期結算成績單</title>
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/static/images/game_background.png');
+            background-size: cover;
+            color: #fff;
+            font-family: "微軟正黑體", sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .report-card {
+            background: rgba(25, 25, 35, 0.95);
+            border: 4px double #f1c40f;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 850px;
+            padding: 30px;
+            box-shadow: 0 0 25px rgba(0,0,0,0.7);
+        }
+        h1 {
+            text-align: center;
+            color: #f1c40f;
+            font-size: 2.5em;
+            margin-top: 0;
+            text-shadow: 2px 2px 4px #000;
+            border-bottom: 2px solid #f1c40f;
+            padding-bottom: 10px;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        @media (max-width: 768px) {
+            .grid-container { grid-template-columns: 1fr; }
+        }
+        #chart {
+            background: transparent;
+            border-radius: 10px;
+        }
+        .info-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .result-box {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 5px solid #ff4757;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        .result-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 8px;
+        }
+        .commentary-box {
+            background: rgba(241, 196, 15, 0.05);
+            border: 1px dashed #f1c40f;
+            padding: 15px;
+            border-radius: 8px;
+            font-style: italic;
+            line-height: 1.6;
+            color: #f39c12;
+        }
+        .teacher-signature {
+            text-align: right;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #f1c40f;
+        }
+        .btn-center {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .info-badges {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .info-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            color: #f8f5e6;
+            font-size: 0.95em;
+            letter-spacing: 0.02em;
+            box-shadow: inset 0 0 0 1px rgba(241, 196, 15, 0.08);
+        }
+        button {
+            background: linear-gradient(135deg, #f1c40f 0%, #f39c12 55%, #ffb347 100%);
+            color: #1f1f1f;
+            border: none;
+            padding: 14px 34px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 16px 30px rgba(241, 196, 15, 0.24);
+            transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
+        }
+        button:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 20px 36px rgba(241, 196, 15, 0.32);
+            filter: brightness(1.02);
+        }
+    </style>
+</head>
+<body>
+
+<div class="report-card">
+    <h1>元智大學學期綜合能力成績單</h1>
+    
+    <div style="text-align: center; font-size: 1.2em;">
+        學生本體：<span id="char-name" style="color: #1e90ff; font-weight: bold;">-</span>
+    </div>
+    <div class="info-badges" style="justify-content:center;">
+        <div class="info-badge">遊玩日期：<span id="play-date">-</span></div>
+        <div class="info-badge">遊玩時間：<span id="play-time">-</span></div>
+    </div>
+
+    <div class="grid-container">
+        <div id="chart"></div>
+        
+        <div class="info-section">
+            <div>
+                <div class="result-box">
+                    <div class="stats-label" style="font-size:0.9em; color:#aaa;">本學期命運走向：</div>
+                    <div id="outcome-title" class="result-title">載入中...</div>
+                    <div id="outcome-desc">正在從學生資料庫調閱歷程...</div>
+                </div>
+                
+                <div class="commentary-box">
+                    <strong style="color: #f1c40f; display: block; margin-bottom: 5px;">🎓 班導師（LLM）有話要說：</strong>
+                    <div id="llm-comment">正在組織語言給予評語...</div>
+                    <div class="teacher-signature">—— 你的爆肝班導 筆</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="btn-center">
+        <button onclick="restartGame()">再過一次大學生活 (重開)</button>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // 從 sessionStorage 讀取 Flask 丟過來的數據
+        const rawData = sessionStorage.getItem('gameResult');
+        if (!rawData) {
+            alert("找不到學期數據，請重新開始遊戲！");
+            window.location.href = "/";
+            return;
+        }
+
+        // 2. 反序列化 (Parse)：將 JSON 字串還原成 JavaScript 的 Object 物件
+        const data = JSON.parse(rawData);
+        const stats = data.stats;// 成功將後端的變數（stamina, knowledge...）對接到前端
+
+        // 渲染文字資訊
+        document.getElementById('char-name').innerText = data.character_name;
+        document.getElementById('play-date').innerText = data.play_date || '-';
+        document.getElementById('play-time').innerText = data.play_duration || data.play_time || '-';
+        document.getElementById('outcome-title').innerText = data.title;
+        document.getElementById('outcome-desc').innerText = data.description;
+        document.getElementById('llm-comment').innerText = data.commentary;
+
+        // === Plotly.js 輻射圖 (Radar Chart) 配置 ===
+        const radarData = [{
+            // 指定 Plotly 圖表類型為輻射圖
+            type: 'scatterpolar',
+            // 輻射圖的五個角對應的數值（最後重複第一個值使圖形封閉）
+            r: [stats.stamina, stats.knowledge, stats.fitness, stats.romance, stats.fun, stats.stamina],
+            // 五個角的標籤
+            theta: ['⚡ 體力', '🧠 知識', '💪 體能', '❤️ 魅力', '🎮 娛樂', '⚡ 體力'],
+            fill: 'toself',// 將五角形內部進行半透明金色填滿
+            fillcolor: 'rgba(241, 196, 15, 0.2)', // 填滿半透明金色
+            line: {
+                color: '#f1c40f',
+                width: 3
+            },
+            marker: {
+                color: '#e74c3c',
+                size: 6
+            },
+            // 【新增】滑鼠移過去時不要顯示十字準星或單點提示，保持乾淨
+            hoverinfo: 'skip'
+        }];
+
+        const layout = {
+            polar: {
+                radialaxis: {
+                    visible: true,
+                    range: [0, 100], // 強制鎖定半徑軸範圍為 0 到 100，符合遊戲規則的數值上限
+                    color: '#fff',
+                    gridcolor: 'rgba(255,255,255,0.1)',
+                    angle: 90,
+                    tickfont: { size: 10, color: '#aaa' },
+                    // 【新增】鎖定半徑軸，防止滑鼠滾輪縮放
+                    fixedrange: true
+                },
+                angularaxis: {
+                    color: '#fff',
+                    gridcolor: 'rgba(255,255,255,0.1)',
+                    tickfont: { size: 14, fontface: 'bold' },
+                    // 【新增】鎖定角度軸，防止拖曳
+                    fixedrange: true 
+                },
+                bgcolor: 'rgba(0,0,0,0.2)'
+            },
+            showlegend: false,
+            paper_bgcolor: 'rgba(0,0,0,0)', // 背景透明
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            margin: { t: 30, b: 30, l: 50, r: 50 },
+            width: 380,
+            height: 350,
+            // 【新增】強制停用拖曳模式
+            dragmode: false
+        };
+
+        // 【修改】第三個參數加入 staticPlot: true 或更細緻的控制
+        // 如果想要完全靜態（連 hover 效果都沒有），可以直接用 { staticPlot: true }
+        // 這裡幫你保留基本設定並加入雙擊、滾輪鎖定：
+        const config = {
+            displayModeBar: false, // 隱藏右上角工具列
+            scrollZoom: false,     // 禁用滾輪縮放
+            doubleClick: false,    // 禁用雙擊還原
+            editable: false        // 確保不可編輯
+        };
+
+        // 最後調用 Plotly 核心方法，將數據、佈局、與防禦配置注入到網頁中名為 "chart" 的 div 區塊內
+        Plotly.newPlot("chart", radarData, layout, {displayModeBar: false});
+    });
+
+    function restartGame() {
+        sessionStorage.clear();
+        window.location.href = "/";
+    }
+</script>
+</body>
+</html>

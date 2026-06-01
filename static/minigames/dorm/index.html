@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>搶棉被大作戰</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-wrapper">
+        <canvas id="minigameCanvas" width="800" height="600"></canvas>
+        <div id="ui-overlay">
+            <div class="message-box" id="msg-box">
+                <h2 id="msg-title">遊戲規則</h2>
+                <p id="msg-text">在時間內瘋狂按下「空白鍵」，從室友手中搶走棉被吧！</p>
+                <button id="start-button" onclick="startGame()">開始遊戲</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

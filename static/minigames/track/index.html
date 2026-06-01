@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>簡易跨欄遊戲</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <div id="intro-overlay">
+            <div class="message-box">
+                <h2>遊戲規則</h2>
+                <p>使用空白鍵跳躍，避免絆倒障礙物。跑到 50 公尺即可挑戰成功贏得趣味障礙賽，失敗則會被絆倒。</p>
+                <button id="start-button">開始遊戲</button>
+            </div>
+        </div>
+        <div id="end-overlay" class="hidden" style="display: none;">
+            <div class="message-box" id="end-box">
+                <h2 id="end-title">挑戰結果</h2>
+                <p id="end-desc">遊戲結束後，這裡會顯示成敗結果。</p>
+                <p id="end-score"></p>
+            </div>
+        </div>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

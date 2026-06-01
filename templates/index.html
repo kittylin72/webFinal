@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>YZU校園冒險世界</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <!-- 主遊戲容器：包含開始畫面、說明視窗、地圖、角色資訊、畫布與其他 UI 元素 -->
+    <div id="game-container">
+        <!-- 遊戲開始畫面：包含標題、說明與進入遊戲按鈕 -->
+        <div id="start-screen">
+            <div class="start-card">
+                <h1>YZU 校園大冒險</h1>
+                <p>從宿舍出發，挑戰圖書館、操場、辦公室，精彩的大學生活掌握在你手中！</p>
+                <div class="start-buttons">
+                    <button class="start-btn" onclick="enterCharacterSelect()">開始遊戲</button>
+                    <button class="hint-btn" onclick="openInstructions()">遊戲說明</button>
+                </div>
+            </div>
+        </div>
+        <!-- 遊戲說明視窗：點擊說明按鈕時顯示，包含操作與遊戲目標說明 -->
+        <div id="instruction-modal">
+            <div class="modal-backdrop" onclick="closeInstructions()"></div>
+            <div class="modal-card">
+                <h3>遊戲說明</h3>
+                <p>這是一款像素風 YZU 校園冒險遊戲。先選擇角色，然後在校園中移動、進入場館完成小遊戲，提升能力值。</p>
+                <ul>
+                    <li>按 WASD 或方向鍵移動角色。</li>
+                    <li>進入不同場館挑戰小遊戲，提升體力、知識、體能、魅力與娛樂，但是記得回宿舍補充體力喔！</li>
+                    <li>遊戲共有 6 回合，體力耗盡或回合結束會進入結算畫面。</li>
+                    <li>最終結局會顯示你專屬的YZU學期成績單，還有爆肝導師評語！</li>
+                </ul>
+                        <div class="modal-actions">
+                    <button class="close-modal-btn" onclick="openCampusMap()">校園地圖</button>
+                    <button class="close-modal-btn" onclick="closeInstructions()">關閉說明</button>
+                </div>
+            </div>
+        </div>
+        <!-- 校園地圖遮罩：顯示遊戲中的校園地圖圖片 -->
+        <div id="campus-map-overlay">
+            <div class="modal-backdrop" onclick="closeCampusMap()"></div>
+            <div class="campus-map-card">
+                <h3>校園地圖</h3>
+                <img src="/static/images/campus_map.png" alt="校園地圖">
+                <div class="campus-map-footer">
+                    <button class="close-modal-btn" onclick="closeCampusMap()">返回說明</button>
+                </div>
+            </div>
+        </div>
+        <!-- 左側角色狀態面板：顯示玩家屬性、體力與剩餘回合 -->
+        <div id="stats-panel" style="display: none;">
+    <div id="profile-header">
+        <div id="player-avatar"></div>
+        <div id="player-info">
+            <div id="player-name-display">冒險者</div>
+            <div class="player-lv">LV. 1</div>
+        </div>
+    </div>
+        <div class="stat-item">
+            <span>⚡ 體力</span>
+            <div class="bar-bg"><div id="bar-stamina" class="bar-fill color-stamina"></div></div>
+            <span id="txt-stamina">0</span>
+        </div>
+        <div class="stat-item">
+            <span>🧠 知識</span>
+            <div class="bar-bg"><div id="bar-knowledge" class="bar-fill color-knowledge"></div></div>
+            <span id="txt-knowledge">0</span>
+        </div>
+        <div class="stat-item">
+            <span>💪 體能</span>
+            <div class="bar-bg"><div id="bar-fitness" class="bar-fill color-fitness"></div></div>
+            <span id="txt-fitness">0</span>
+        </div>
+        <div class="stat-item">
+            <span>❤️ 魅力</span>
+            <div class="bar-bg"><div id="bar-romance" class="bar-fill color-romance"></div></div>
+            <span id="txt-romance">0</span>
+        </div>
+        <div class="stat-item">
+            <span>🎮 娛樂</span>
+            <div class="bar-bg"><div id="bar-fun" class="bar-fill color-fun"></div></div>
+            <span id="txt-fun">0</span>
+        </div>
+        <hr>
+        <div class="turn-info">剩餘行動：<span id="remain-count">6</span></div>
+    </div>
+  <!-- 左側角色狀態面板結束 -->
+
+        <!-- 小遊戲遮罩：載入選定小遊戲的 iframe，覆蓋主要畫面 -->
+<div id="minigame-overlay" style="display:none; position:absolute; top:0; left:0; width:800px; height:600px; background:rgba(0,0,0,0.8); z-index:100;">
+        <iframe id="minigame-frame" src="" scrolling="no" onload="this.contentWindow.focus();" style="width:100%; height:100%; border:none;"></iframe>
+    </div>
+
+    <!-- 體力耗盡提示：當玩家體力歸零時顯示，提供重新開始選項 -->
+    <div id="hospital-end" style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; background:red; padding:50px; z-index:200;">
+        <h1>體力耗盡！你被送往醫院了...</h1>
+        <button onclick="location.reload()">重新開始</button>
+    </div>
+
+    <!-- 主要遊戲畫布：用於繪製角色與場景，並作為遊戲視覺輸出區 -->
+    <canvas id="gameCanvas"></canvas>
+
+        <!-- 角色選擇介面：開始遊戲前可挑選不同角色屬性 -->
+        <div id="charSelectUI" style="display: none;">
+            <h2>選擇您的冒險者</h2>
+            <div class="char-options">
+                <div class="char-card" onclick="selectCharacter('nerd')">
+                    <div class="char-preview preview-nerd"></div>
+                    <div class="char-name">書呆子</div>
+                </div>
+
+                <div class="char-card" onclick="selectCharacter('athlete')">
+                    <div class="char-preview preview-athlete"></div>
+                    <div class="char-name">運動健將</div>
+                </div>
+
+                <div class="char-card" onclick="selectCharacter('player')">
+                    <div class="char-preview preview-player"></div>
+                    <div class="char-name">玩咖</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 對話系統：遊戲中由老師顯示提示與劇情文字 -->
+        <div id="dialogue-system" style="display: none;">
+        <div class="teacher-avatar idle"></div>
+            <div class="dialogue-bubble">
+                <div class="teacher-name">老師</div>
+                <div id="dialogue-text">歡迎來到冒險世界！請使用 WASD 進行移動。</div>
+            </div>
+        </div>
+    </div>
+     <audio id="bgm" src="/static/audio/bgm.mp3" loop autoplay></audio>
+    <script src="/static/main.js"></script>
+</body>
+</html>

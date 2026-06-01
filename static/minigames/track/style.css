@@ -1,0 +1,136 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #5b9b9c;
+    position: relative;
+}
+
+#intro-overlay,
+#end-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 20;
+}
+
+#end-overlay.hidden {
+    display: none !important;
+}
+
+.hidden {
+    display: none;
+}
+
+.message-box {
+    background: #2c3e50;
+    border: 4px solid #f1c40f;
+    color:white;
+    padding: 30px;
+    text-align: center;
+    border-radius: 15px;
+    max-width: 450px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    animation: popIn 0.3s ease-out;
+}
+
+@keyframes popIn {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.message-box h2 {
+    color: #f1c40f;
+    margin-top: 0;
+    font-size: 28px;
+    text-shadow: 2px 2px 4px #000;
+}
+
+.message-box p {
+    font-size: 18px;
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+button {
+    background: #f1c40f;
+    color: #2c3e50;
+    border: none;
+    padding: 12px 30px;
+    font-size: 20px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+}
+
+button:hover {
+    background: #f39c12;
+    transform: scale(1.1);
+}
+
+button:active {
+    transform: scale(0.95);
+}
+
+#gameCanvas {
+    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    display: block;
+    margin: auto;
+    background: url("images/background.png") no-repeat;
+    background-size: 230% auto; /* 讓寬度撐滿 */
+    background-position: center 0px; /* 只顯示最上方的學校天空*/
+    background-color: transparent; /* 確保畫布透明*/
+    border: 5px solid #fff;
+}
+
+#score {
+    position: absolute;
+    top: 10px;
+    left: 20px;
+    font-size: 24px;
+    color: white;
+}
+
+/* ========================================== */
+/* 小遊戲彈窗與 iframe 位置控制樣式       */
+/* ========================================== */
+
+/* 外層黑色半透明遮罩：剛好蓋住 800x600 的主遊戲 Canvas */
+#minigame-ui {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 800px;  /* 【控制點】與主遊戲畫面同寬 */
+    height: 600px; /* 【控制點】與主遊戲畫面同高 */
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    justify-content: center; /* 【置中】水平置中 */
+    align-items: center;     /* 【置中】垂直置中 */
+    z-index: 999;            /* 確保擋在畫布最前方 */
+}
+
+/* 詢問特訓的白色小彈窗 */
+#popup-confirm {
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 10px;
+    text-align: center;
+    color: #333333;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+/* 跑步跑酷小遊戲的內嵌視窗位置與大小 */
+#minigame-frame {
+    width: 700px;         /* 【控制點】小遊戲畫面顯示寬度 */
+    height: 400px;        /* 【控制點】小遊戲畫面顯示高度 */
+    border: 5px solid #ffffff; /* 白色邊框 */
+    border-radius: 12px;
+    background-color: #5b9b9c;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}

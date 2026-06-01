@@ -1,0 +1,565 @@
+/* --- 基礎頁面樣式 --- */
+body {
+    margin: 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    /* 使用 linear-gradient 在圖片上蓋一層 60% 透明度的黑色 */
+background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
+                url('/static/images/game_background.png');
+    background-size: cover;
+    background-position: center;
+    image-rendering: pixelated; /* 讓像素風更清晰 */
+    color: white;
+    font-family: "微軟正黑體", sans-serif;
+    gap: 20px;
+}
+
+#game-container {
+    position: relative;
+    width: 800px;
+    height: 600px;
+    border: 5px solid #444;
+    background-color: #000;
+    z-index: 1;
+}
+
+canvas {
+    display: block;
+    position: relative;
+    z-index: 1;
+}
+
+/* --- 角色選擇介面 --- */
+#charSelectUI {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    height: 350px;
+    width: 90%;
+    max-width: 550px;
+    background: rgba(35, 35, 53, 0.95);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+    border: 3px solid #f1c40f;
+    border-radius: 15px;
+    z-index: 100;
+}
+
+#charSelectUI h2 {
+    color: #f1c40f;
+    margin: 0 0 25px 0;
+    font-size: 28px;
+    text-shadow: 2px 2px 4px #000;
+}
+
+.char-options {
+    display: flex;
+    gap: 20px;
+}
+
+.char-card {
+    background: #34495e;
+    border: 3px solid #ecf0f1;
+    border-radius: 10px;
+    padding: 15px;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 130px;
+}
+
+.char-card:hover {
+    transform: scale(1.05);
+    border-color: #f1c40f;
+    background: #2c3e50;
+}
+
+.char-name {
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    margin-top: 10px;
+}
+
+/* --- 核心修正：角色預覽圖 (針對 4x3 網格) --- */
+.char-preview {
+    width: 80px;
+    height: 80px;
+    /* 換成大頭照檔案 */
+    background-image: url('/static/images/headshots.png'); 
+    /* 假設大頭照是 3x1 或類似比例，調整縮放 */
+    background-size: 380% 280%; 
+    background-repeat: no-repeat;
+    border-radius: 50%; 
+}
+
+/* 使用百分比定位：
+   水平 (X): 0% 是第一列(正面)
+   垂直 (Y): 0% 是第一行, 50% 是第二行, 100% 是第三行
+*/
+.preview-nerd    { background-position: 12% 30%; }     /* 書呆子 (行0) */
+.preview-athlete { background-position: 54% 30%; }    /* 運動健將 (行1) */
+.preview-player  { background-position: 95% 30%; }   /* 玩咖 (行2) */
+
+/* --- 其他 UI --- */
+#ui {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0,0,0,0.6);
+    padding: 5px 10px;
+    pointer-events: none;
+    font-size: 14px;
+}
+
+/*老師對話條*/
+#dialogue-system {
+    position: absolute;
+    bottom: -50px; 
+    left: -50px; 
+    display: flex;
+    align-items: flex-end; /* 讓頭像和對話框底部對齊 */
+    z-index: 200;    /* 讓老師對話永遠蓋在 CRT overlay 之上 */
+    pointer-events: none; /* 避免擋住點擊 */
+}
+
+/* --- 老師圓形頭像 --- */
+.teacher-avatar {
+    width: 100px;
+    height: 100px;
+    background-image: url('/static/images/teacher.png');
+    /* 1. 放大：原本是 200% (寬) 100% (高)，現在調大高度百分比來實現放大效果 */
+    /* 220% 代表兩張圖總寬，120% 代表拉大單張圖的高度比例 */
+    background-size: 240% 140%; 
+    background-repeat: no-repeat;
+    border: 4px solid #f1c40f; 
+    border-radius: 50%;        
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    background-color: #2c3e50;
+    z-index: 2; 
+    flex-shrink: 0;
+    transition: background-position 0.01s;
+}
+
+/* 動作 1：說話中 (Pose 1) */
+.teacher-avatar.talking {
+    /* 2. 下移：將原本的 center (50%) 改為較大的數值 (例如 80% 或更多) */
+    background-position: 10% 0%; 
+}
+
+/* 動作 2：沒說話 (Pose 2) */
+.teacher-avatar.idle {
+    /* 同樣將垂直位置設為 80% 來下移 */
+    background-position: 95% 0%; 
+}
+
+/* --- 方形對話條 --- */
+.dialogue-bubble {
+    background: rgba(30, 30, 30, 0.9); /* 深色半透明 */
+    border: 2px solid #ecf0f1;
+    padding: 0px 20px 0px 60px; /* 左側留空間給頭像重疊 */
+    margin-left: -50px;           /* 讓框框往左移，產生重疊效果 */
+    margin-bottom: 10px;          /* 稍微抬高一點 */
+    min-width: 710px;
+    min-height: 60px;
+    color: white;
+    font-size: 16px;
+    border-radius: 5px;           /* 稍微圓角但不失方塊感 */
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.3); /* 復古陰影 */
+    z-index: 1;
+    min-height: 80px;      /* 給予固定最小高度，防止文字跑動時框框忽大忽小 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* 文字垂直居中 */
+    overflow: hidden;
+}
+
+.teacher-name {
+    color: #f1c40f;
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+}
+
+#dialogue-text {
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    line-height: 1.5;
+}
+
+/* --- 數據面板整體樣式 --- */
+#stats-panel {
+   position: absolute;
+    right: 100%;        /* Pushes the right edge of panel to the left edge of container */
+    margin-right: 20px; /* Creates the gap between panel and game */
+    top: 0;
+    width: 190px;
+    background: rgba(30, 30, 30, 0.9); 
+    padding: 20px;
+    border-radius: 12px;
+    border: 2px solid #f1c40f; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    display: none;      /* Hidden until character is selected */
+    flex-direction: column;
+    z-index: 10
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+/* 固定前面文字的寬度，讓後面的進度條對齊 */
+.stat-item span:first-child {
+    width: 70px;
+}
+
+/* --- 對應 HTML 的進度條背景 --- */
+.bar-bg {
+    flex-grow: 1;
+    height: 12px;
+    background: #444;
+    border-radius: 6px;
+    margin: 0 10px;
+    overflow: hidden;
+}
+
+/* --- 對應 HTML 的進度條本體 --- */
+.bar-fill {
+    height: 100%;
+    width: 0%; 
+    transition: width 0.4s ease-out; /* 數值跳動的動畫 */
+}
+
+/* 各數值專屬顏色 (對應 HTML 裡的 color-xxx) */
+.color-stamina { background: #ff4757; }
+.color-knowledge { background: #1e90ff; }
+.color-fitness { background: #2ed573; }
+.color-romance { background: #ffa502; }
+.color-fun { background: #a29bfe; }
+
+/* 最右邊的數字 */
+.stat-item span:last-child {
+    width: 30px;
+    text-align: right;
+    font-weight: bold;
+    color: white;
+}
+
+/* 剩餘行動次數 */
+.turn-info {
+    text-align: center;
+    color: #f1c40f;
+    font-size: 16px;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+/* --- Avatar & Name Flare --- */
+#profile-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(241, 196, 15, 0.3);
+}
+
+#player-avatar {
+    width: 48px;
+    height: 48px;
+    border: 2px solid #f1c40f;
+    border-radius: 4px;
+    background-image: url('/static/images/headshots.png');
+    background-size: 380% 280%; 
+    background-repeat: no-repeat;
+    background-color: #222;
+    background-position: 0% 0%; 
+}
+
+#player-name-display {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #f1c40f;
+}
+
+.player-lv { font-size: 0.7em; color: #888; }
+
+/* --- Shimmering Stat Bars --- */
+.bar-fill {
+    position: relative;
+    overflow: hidden;
+}
+
+.bar-fill::after {
+    content: "";
+    position: absolute;
+    top: 0; left: -100%; width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    animation: shimmer 2.5s infinite;
+}
+
+@keyframes shimmer {
+    100% { left: 100%; }
+}
+
+/* 確保面板在暗色背景下更清晰 */
+#stats-panel {
+    background: rgba(20, 20, 20, 0.95); /* 加深面板透明度 */
+    border: 2px solid #f1c40f;
+    box-shadow: 0 0 20px rgba(0,0,0,0.8);
+}
+
+/* 說明框校園地圖縮圖 */
+.instruction-map {
+    text-align: center;
+    margin: 18px 0 8px;
+}
+
+.instruction-map img {
+    width: 240px;
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+}
+
+.map-note {
+    margin-top: 10px;
+    color: #dcd4b2;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+/* --- Start screen / modal styles moved from templates/index.html --- */
+#start-screen {
+    position: absolute;
+    inset: 0;
+    z-index: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(0, 0, 0, 0.82);
+}
+
+.start-card {
+    width: min(760px, 92%);
+    padding: 32px 30px;
+    border-radius: 16px;
+    background: linear-gradient(rgba(10, 12, 24, 0.68), rgba(10, 12, 24, 0.58)),
+                url('/static/images/startcard.png');
+    background-size: cover;
+    background-position: center;
+    border: 4px solid #f1c40f;
+    box-shadow: inset 0 0 0 4px #111, 0 24px 64px rgba(0, 0, 0, 0.55);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    animation: floatCard 4s ease-in-out infinite;
+}
+
+.start-card::before {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border: 2px dashed rgba(241, 196, 15, 0.75);
+    pointer-events: none;
+}
+
+.start-card h1 {
+    margin: 0;
+    color: #f1c40f;
+    font-size: 3rem;
+    letter-spacing: 0.24em;
+    text-shadow:
+        2px 2px 0 #000,
+        4px 4px 0 rgba(0, 0, 0, 0.2),
+        -2px 2px 0 #000,
+        2px -2px 0 #000;
+    text-transform: uppercase;
+}
+
+.start-card p {
+    margin: 18px auto 0;
+    max-width: 680px;
+    color: #f2e7c9;
+    font-size: 1rem;
+    line-height: 1.7;
+}
+
+.start-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+    margin-top: 28px;
+}
+
+.start-btn,
+.hint-btn,
+.close-modal-btn {
+    min-width: 160px;
+    border-radius: 6px;
+    border: 3px solid #000;
+    padding: 14px 26px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+}
+
+.start-btn {
+    background: linear-gradient(135deg, #f1c40f 0%, #ffb347 55%, #ffc76a 100%);
+    color: #1f1f1f;
+    box-shadow: 0 8px 0 #000, 0 12px 14px rgba(0, 0, 0, 0.15);
+}
+
+.start-btn:hover {
+    transform: translateY(-2px) scale(1.02);
+    filter: brightness(1.04);
+}
+
+.hint-btn {
+    background: #111;
+    color: #f8f5e6;
+    border-color: #f1c40f;
+    box-shadow: 0 8px 0 #000;
+}
+
+.hint-btn:hover {
+    transform: translateY(-2px) scale(1.02);
+    background: rgba(255, 255, 255, 0.12);
+}
+
+@keyframes floatCard {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-7px); }
+}
+
+#instruction-modal {
+    position: absolute;
+    inset: 0;
+    z-index: 950;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.78);
+}
+
+.modal-card {
+    position: relative;
+    width: min(700px, 92%);
+    padding: 24px 28px;
+    border-radius: 20px;
+    background: rgba(12, 14, 24, 0.98);
+    border: 2px solid rgba(241, 196, 15, 0.7);
+    box-shadow: 0 26px 66px rgba(0, 0, 0, 0.5);
+    color: #efe6c4;
+    text-align: left;
+}
+
+.modal-card h3 {
+    margin-top: 0;
+    color: #f1c40f;
+    font-size: 1.8rem;
+}
+
+.modal-card ul {
+    margin: 16px 0 0 18px;
+    padding-left: 0;
+}
+
+.modal-card li {
+    margin-bottom: 10px;
+    line-height: 1.7;
+}
+
+.modal-card p {
+    margin: 0 0 16px;
+    line-height: 1.7;
+}
+
+.close-modal-btn {
+    margin-top: 20px;
+    background: linear-gradient(135deg, #f9e47f 0%, #f1c40f 100%);
+    color: #1f1f1f;
+    box-shadow: 0 12px 22px rgba(241, 196, 15, 0.24);
+}
+
+.close-modal-btn:hover {
+    transform: translateY(-1px);
+}
+
+.modal-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+#campus-map-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 960;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+#campus-map-overlay .modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.78);
+}
+
+.campus-map-card {
+    position: relative;
+    width: min(700px, 92%);
+    padding: 24px 28px;
+    border-radius: 20px;
+    background: rgba(12, 14, 24, 0.98);
+    border: 2px solid rgba(241, 196, 15, 0.7);
+    box-shadow: 0 26px 66px rgba(0, 0, 0, 0.5);
+    color: #efe6c4;
+    text-align: center;
+}
+
+.campus-map-card h3 {
+    margin-top: 0;
+    color: #f1c40f;
+    font-size: 1.8rem;
+}
+
+.campus-map-card img {
+    width: 100%;
+    max-height: 420px;
+    height: auto;
+    border-radius: 14px;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.28);
+    margin-top: 18px;
+}
+
+.campus-map-footer {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 18px;
+}

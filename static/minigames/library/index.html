@@ -1,0 +1,26 @@
+<!DOCTYPE html><!-- 宣告使用 HTML5 -->
+<html lang="zh-TW"><!-- 網頁語言設定為繁體中文 -->
+<head>
+    <meta charset="UTF-8"><!-- 設定 UTF-8 編碼避免中文亂碼 -->
+    <title>圖書館小遊戲</title><!-- 網頁標題 -->
+    <link rel="stylesheet" href="style.css"><!-- 載入 CSS 樣式檔 -->
+</head>
+<body>
+    <div id="intro-overlay">
+        <div class="message-box" id="overlay-box">
+            <h2 id="overlay-title">📚 圖書館問答挑戰</h2>
+            <p id="overlay-desc">在這裡你可以精進自己的知識，要答對3題以上才能成為系上的大學霸！</p>
+            <button id="overlay-button" onclick="startQuizGame()">開始遊戲</button><!-- 開始遊戲按鈕 -->
+        </div>
+    </div>
+    <div id="game-root"><!-- 遊戲主容器 -->
+        <div class="quiz-box"><!-- 問答框 -->
+            <h2>📚 圖書館問答挑戰</h2><!-- 遊戲標題 -->
+            <div id="question">載入題目中...</div><!-- 顯示題目 -->
+            <div id="choices"></div><!-- 顯示選項按鈕 -->
+            <div id="timer">⏳ 3</div><!-- 顯示倒數計時 -->
+        </div>
+    </div>
+    <script src="main.js"></script><!-- 載入 JavaScript -->
+</body>
+</html>
