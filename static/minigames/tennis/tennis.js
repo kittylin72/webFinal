@@ -401,3 +401,9 @@ window.addEventListener('keyup', e => {
     }
     keys[e.code] = false; // 在字典中把該按鍵還原為 false (代表手指放開了)
 });
+
+bgImage.onerror = () => console.error('載入失敗:', bgImage.src);
+playerImage.onerror = () => console.error('載入失敗:', playerImage.src);
+computerImage.onerror = () => console.error('載入失敗:', computerImage.src);
+winImage.onerror = () => console.error('載入失敗:', winImage.src);
+loseImage.onerror = () => console.error('載入失敗:', loseImage.src);
