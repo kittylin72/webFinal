@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>辦公室偷情遊戲</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="game-container">
+    <canvas id="gameCanvas"></canvas>
+    <div id="ui-overlay">
+      <div id="score-display"> SCORE <span id="score">0</span></div>
+      <div id="timer-display"> TIME <span id="timer">30</span>s</div>
+    </div>
+    <div id="start-screen">
+      <div class="message-box">
+        <h1> 辦公室偷情</h1>
+        <p class="subtitle">當學務處工讀生同時偷偷進行浪漫互動❤️</p>
+        <div class="instructions">
+          <p> <strong>WASD</strong> 移動主角</p>
+          <p> <strong>空白鍵</strong> 觸發互動</p>
+          <p> 在愛心圓圈消失前抵達配角旁邊</p>
+          <p> 碰到上司 <strong>凍結3秒</strong></p>
+        </div>
+        <button id="start-btn">開始遊戲</button>
+      </div>
+    </div>
+    <div id="end-screen" class="hidden">
+      <div class="message-box">
+        <h1>遊戲結束！</h1>
+        <p id="end-result" class="end-result"></p>
+        <p class="final-score">最終得分: <span id="final-score">0</span> 分</p>
+        <p id="end-message"></p>
+      </div>
+    </div>
+    <div id="penalty-flash" class="hidden"></div>
+  </div>
+  <script src="script.js"></script>
