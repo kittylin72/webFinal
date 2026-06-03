@@ -1,4 +1,5 @@
 // ===== GAME CONFIG =====
+//定義遊戲的各種參數
 const CANVAS_SIZE = 700;
 const GRID_COLS = 7;
 const GRID_ROWS = 7;
@@ -14,6 +15,7 @@ const COLLISION_DIST = 45;
 const INTERACT_DIST = 55;
 
 // ===== CANVAS SETUP =====
+//獲取html的canvas元素、設置2D繪製上下文
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 canvas.width = CANVAS_SIZE;
@@ -52,13 +54,15 @@ function loadImages(callback) {
 }
 
 // ===== GAME STATE =====
+//定義遊戲狀態變量
+//狀態分為start、playing、end
 let gameState = 'start'; // 'start' | 'playing' | 'end'
 let score = 0;
 let timeLeft = GAME_DURATION;
 let lastTime = 0;
 let timerAccum = 0;
 
-// Player
+// Player的位置、大小、速度、方向、凍結狀態
 const player = {
   x: CANVAS_SIZE / 2,
   y: CANVAS_SIZE / 2,
@@ -71,7 +75,7 @@ const player = {
   frozenTimer: 0,      // countdown in seconds
 };
 
-// Boss
+// Boss位置、大小、方向、生氣狀態
 const boss = {
   x: 60,
   y: 60,
@@ -82,11 +86,13 @@ const boss = {
   angryTimer: 0,
 };
 
-// NPCs
+// NPCs列表和ID計數器
 let npcs = [];
 let npcIdCounter = 0;
 
 // Input
+//監聽鍵盤狀態
+//空白鍵觸發
 const keys = {};
 window.addEventListener('keydown', e => {
   keys[e.code] = true;
@@ -98,6 +104,7 @@ window.addEventListener('keydown', e => {
 window.addEventListener('keyup', e => { keys[e.code] = false; });
 
 // UI Elements
+//獲取html中需要動態更新的UI元素
 const scoreEl = document.getElementById('score');
 const timerEl = document.getElementById('timer');
 const startScreen = document.getElementById('start-screen');
@@ -113,6 +120,9 @@ if (startBtn) startBtn.addEventListener('click', startGame);
 if (restartBtn) restartBtn.addEventListener('click', startGame);
 
 // ===== NPC SPAWNING =====
+//NPC生成系統
+//定義NPC類型
+//spawnNPC:在螢幕邊緣隨機生成NPC並加到npc列表中
 let npcSpawnTimer = 0;
 const NPC_TYPES = [
   { type: 'female', leftKey: 'female_left', rightKey: 'female_right' },
@@ -121,6 +131,7 @@ const NPC_TYPES = [
 
 function spawnNPC() {
   // Pick a row (1-5) that has the fewest NPCs to avoid clustering
+  //選擇人數最少的行加入NPC
   const rowCounts = {};
   for (let r = 1; r <= GRID_ROWS - 2; r++) rowCounts[r] = 0;
   for (const n of npcs) if (n.row >= 1 && n.row <= GRID_ROWS - 2) rowCounts[n.row]++;
@@ -160,6 +171,7 @@ function spawnNPC() {
 }
 
 // Randomly trigger a circle on one NPC
+//定期在隨機的NPC頭上顯示愛心圓圈
 let circleEventTimer = 0;
 const CIRCLE_EVENT_INTERVAL_MIN = 0.8;
 const CIRCLE_EVENT_INTERVAL_MAX = 2;
@@ -176,6 +188,8 @@ function triggerCircleEvent() {
 }
 
 // ===== INTERACT =====
+//案空白鍵的時候檢查周遭是否有圈圈NPC
+//如果有就得分並且生成浮動心型動畫
 function tryInteract() {
   for (let npc of npcs) {
     if (!npc.circleActive) continue;
