@@ -8,11 +8,14 @@
 </head>
 <body>
   <div id="game-container">
-    <canvas id="gameCanvas"></canvas>
-    <div id="ui-overlay">
+    <!--canvas畫布-->
+    <canvas id="gameCanvas"></canvas> 
+    <!--遊戲UI跟overlay-->
+    <div id="ui-overlay"> 
       <div id="score-display"> SCORE <span id="score">0</span></div>
       <div id="timer-display"> TIME <span id="timer">30</span>s</div>
     </div>
+    <!--遊戲起始畫面-->>
     <div id="start-screen">
       <div class="message-box">
         <h1> 辦公室偷情</h1>
@@ -23,9 +26,11 @@
           <p> 在愛心圓圈消失前抵達配角旁邊</p>
           <p> 碰到上司 <strong>凍結3秒</strong></p>
         </div>
+        <!--遊戲開始紐-->
         <button id="start-btn">開始遊戲</button>
       </div>
     </div>
+    <!--遊戲結束畫面-->
     <div id="end-screen" class="hidden">
       <div class="message-box">
         <h1>遊戲結束！</h1>
@@ -34,6 +39,8 @@
         <p id="end-message"></p>
       </div>
     </div>
+    <!--懲罰閃爍畫面-->
     <div id="penalty-flash" class="hidden"></div>
   </div>
+  <!--遊戲邏輯-->
   <script src="script.js"></script>
